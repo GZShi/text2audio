@@ -4,9 +4,12 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/GZShi/text2audio/src/baidu"
@@ -30,16 +33,37 @@ func response(ctx iris.Context, err error, data interface{}) {
 	}{0, "", data})
 }
 
+func parseAuthStr(str string) ([]string, error) {
+	strs := strings.Split(str, ":")
+	if len(strs) != 2 {
+		return nil, errors.New("bad auth string")
+	}
+	return strs, nil
+}
+
 func main() {
+	var listenAddr string
+	var baiduAuthRaw, xfyunAuthRaw string
+	flag.StringVar(&listenAddr, "l", ":8081", "[host]:[port]")
+	flag.StringVar(&baiduAuthRaw, "baidu", "", "[api key]:[secret key]")
+	flag.StringVar(&xfyunAuthRaw, "xfyun", "", "[app id]:[app key]")
+	flag.Parse()
+
+	baiduAuth, err := parseAuthStr(baiduAuthRaw)
+	if err != nil {
+		panic(err)
+	}
+
+	xfyunAuth, err := parseAuthStr(xfyunAuthRaw)
+	if err != nil {
+		panic(err)
+	}
+
 	var filecacheMut sync.RWMutex
 	filecache := make(map[string][]byte)
 
 	// init baiduclient
-	baiduclient := baidu.NewAuthClient(
-		"pZXEHHmetABCd1x2TmLdFrXL",
-		"CbKrOOhrR05ohCjIzyK1xaqpb9ET69Q3",
-		"serversideclient",
-	)
+	baiduclient := baidu.NewAuthClient(baiduAuth[0], baiduAuth[1], "serversideclient")
 	baiduclient.KeepFresh()
 
 	app := iris.New()
@@ -97,7 +121,7 @@ func main() {
 
 		switch payload.API {
 		case "xfyun":
-			api := xfyun.NewText2Audio("5c937cd5", "925f72ad4baa7a39bc52def6c1b77d64")
+			api := xfyun.NewText2Audio(xfyunAuth[0], xfyunAuth[1])
 			api.VoiceName = payload.Xfyun.VoiceName
 			api.Speed = strconv.FormatInt(payload.Xfyun.Speed, 10)
 			api.Pitch = strconv.FormatInt(payload.Xfyun.Pitch, 10)
@@ -149,5 +173,5 @@ func main() {
 		ctx.Write(mp3)
 	})
 
-	app.Run(iris.Addr(":8081"))
+	app.Run(iris.Addr(listenAddr))
 }
