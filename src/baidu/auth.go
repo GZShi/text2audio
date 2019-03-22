@@ -70,8 +70,10 @@ func (c *AuthClient) KeepFresh() {
 				err := c.update()
 				if err == nil {
 					t := c.accessToken
-					log.Print("token updated ", t.AccessToken, t.ExpiresIn)
-					interval = time.Second * time.Duration(c.accessToken.ExpiresIn-60)
+					log.Printf("token updated token=%v expire=%v", t.AccessToken, t.ExpiresIn)
+					if t.ExpiresIn != 0 {
+						interval = time.Second * time.Duration(c.accessToken.ExpiresIn-60)
+					}
 				}
 			}
 		}

@@ -1,3 +1,3 @@
 cd ./src
 
-go build -o ../LangDu.exe
+go build -o ../api-tts.exe
