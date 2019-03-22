@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/GZShi/text2speech/src/baidu"
-	"github.com/GZShi/text2speech/src/xfyun"
+	"github.com/GZShi/text2audio/src/baidu"
+	"github.com/GZShi/text2audio/src/xfyun"
 	"github.com/kataras/iris"
 )
 

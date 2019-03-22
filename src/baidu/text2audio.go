@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/GZShi/text2speech/src/utils"
+	"github.com/GZShi/text2audio/src/utils"
 	"github.com/google/go-querystring/query"
 )
 

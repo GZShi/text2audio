@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/GZShi/text2speech/src/utils"
+	"github.com/GZShi/text2audio/src/utils"
 )
 
 type xparam struct {
